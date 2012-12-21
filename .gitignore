@@ -1,0 +1,5 @@
+/.snaked_project
+/chll.so
+/build
+/dist
+*.pyc
