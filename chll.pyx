@@ -1,3 +1,4 @@
+import sys
 from math import pow, log
 from array import array
 from struct import Struct
@@ -84,27 +85,28 @@ class HyperLogLog(object):
 
         return 0
 
-
-struct_hash = {}
-def get_struct(size):
+zero_sets = {}
+def get_zero_byte_array(size):
     try:
-        return struct_hash[size]
+        return zero_sets[size][:]
     except KeyError:
         pass
 
-    result = struct_hash[size] = Struct('!' + 'i' * (size / 4))
-    return result
-
-def get_zero_byte_array(size):
-    arr = array('b')
-    arr.fromstring('\x00'*size)
-    return arr
+    arr = zero_sets[size] = array('b')
+    arr.fromstring('\x00' * size)
+    return arr[:]
 
 def create(data):
     log2m, size = header.unpack(data[:header.size])
-    data = get_struct(size).unpack_from(data[header.size:])
+
+    source = array('I')
+    source.fromstring(data[header.size:])
+    if sys.byteorder == 'little':
+        source.byteswap()
+
     dest = get_zero_byte_array(1 << log2m)
-    fill_bits(1 << log2m, array('I', data), dest)
+    fill_bits(1 << log2m, source, dest)
+
     return HyperLogLog(log2m, dest)
 
 def merge(counters):
