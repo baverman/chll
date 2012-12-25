@@ -7,6 +7,7 @@ from operator import or_
 from libc.math cimport pow as cpow
 cimport cython
 cimport cpython.array
+from cython cimport view
 
 header = Struct('!ii')
 
@@ -17,7 +18,8 @@ LOG2_BITS_PER_WORD = 6
 REGISTER_SIZE = 5
 
 @cython.boundscheck(False)
-cdef fill_bits(int count, unsigned int[:] source, char[:] dest):
+@cython.wraparound(False)
+cdef fill_bits(int count, unsigned int[::view.contiguous] source, char[::view.contiguous] dest):
     cdef int j
     cdef int i
     cdef int shift
@@ -31,7 +33,8 @@ cdef fill_bits(int count, unsigned int[:] source, char[:] dest):
             j += 1
 
 @cython.boundscheck(False)
-cdef double calc_sum(char[:] view):
+@cython.wraparound(False)
+cdef double calc_sum(char[::view.contiguous] view):
     cdef double result
     cdef int i
 
@@ -43,7 +46,8 @@ cdef double calc_sum(char[:] view):
     return result
 
 @cython.boundscheck(False)
-cdef merge_sets(char[:] source, char[:] dest):
+@cython.wraparound(False)
+cdef merge_sets(char[::view.contiguous] source, char[::view.contiguous] dest):
     cdef int i
     cdef char v
 
